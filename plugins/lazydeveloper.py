@@ -6,7 +6,7 @@ from asyncio.exceptions import TimeoutError
 
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
-from Data import Data
+from plugins.Data import Data
 from telethon import TelegramClient
 from telethon.sessions import StringSession
 from pyrogram.errors import (
