@@ -50,10 +50,20 @@ def set_session_in_config(id, session_string):
     from config import Lazy_session  # Import St_Session to modify it
     Lazy_session[id] = session_string
 
+def set_api_id_in_config(id, lazy_api_id):
+    from config import Lazy_api_id  # Import api id to modify it
+    Lazy_api_id[id] = lazy_api_id
+
+def set_api_hash_in_config(id, lazy_api_hash):
+    from config import Lazy_api_hash  # Import api hash to modify it
+    Lazy_api_hash[id] = lazy_api_hash
+
 lazydeveloperrsession = None
 
 @Client.on_message(filters.private & filters.command("generate"))
 async def generate_session(bot, msg):
+    lzid = msg.from_user.id
+    global lazydeveloperrsession
     await msg.reply(
         "sᴛᴀʀᴛɪɴG [ᴛᴇʟᴇᴛʜᴏɴ] sᴇssɪᴏɴ ɢᴇɴᴇʀᴀᴛɪᴏɴ..."
     )
@@ -168,7 +178,9 @@ async def generate_session(bot, msg):
     try:
         # St_Session[msg.from_user.id] = string_session
         set_session_in_config(msg.from_user.id, string_session)
-        print(f"Session saved to config successfully ✅")
+        set_api_id_in_config(msg.from_user.id, api_id)
+        set_api_hash_in_config(msg.from_user.id, api_hash)
+        print(f"Credentials api id and hash saved to config successfully ✅")
     except Exception as LazyDeveloperr:
         print(LazyDeveloperr)
 
@@ -182,13 +194,15 @@ async def generate_session(bot, msg):
     await phone_code_msg.reply(
         "sᴜᴄᴄᴇssꜰᴜʟʟʏ ɢᴇɴᴇʀᴀᴛᴇᴅ telethon sᴛʀɪɴɢ sᴇssɪᴏɴ. \n\nᴘʟᴇᴀsᴇ ᴄʜᴇᴄᴋ ʏᴏᴜʀ sᴀᴠᴇᴅ ᴍᴇssᴀɢᴇs!"
     )
+    # Save session to the dictionary
     try:
-        lazydeveloperrsession = TelegramClient(StringSession(string_session), API_ID, API_HASH)
+        lazydeveloperrsession = TelegramClient(StringSession(string_session), api_id, api_hash)
         await lazydeveloperrsession.start()
-        print(f'Session started successfully ✅')
-    except Exception as ap:
-        print(f"ERROR - {ap}")
-        exit(1)
+        print(f"Session started successfully for user {user_id} ✅")
+    except Exception as e:
+        print(f"Error starting session for user {user_id}: {e}")
+        await msg.reply("Failed to start session. Please try again.")
+        return
 
 
 async def cancelled(msg):
@@ -362,20 +376,8 @@ async def rename(client, message):
     if not await verify_user(user_id):
         return await message.reply("⛔ You are not authorized to use this bot.")
     
-    # if message.from_user.id in Lazy_session:
-    #     try:
-    #         String_Session = St_Session[message.from_user.id]
-    #         ubot = Client("Urenamer", session_string=String_Session, api_id=API_ID, api_hash=API_HASH)
-    #         print("Ubot Connected")
-    #     except Exception as e:
-    #         print(e)
-    #         return await message.reply("String Session Not Connected! Use /connect")
-    # else:
-    #     return await message.reply("String Session Not Connected! Use /connect")
-
-    # await ubot.start()
- 
-    
+    # if user_id not in lazydeveloperrsession:
+    #     return await message.reply("⚠️ No session found. Please generate a session first using /generate.")
 
     if not lazydeveloperrsession:
         print(f"lazydeveloperrsession not found")
