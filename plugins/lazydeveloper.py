@@ -46,7 +46,11 @@ PHONE_NUMBER_TEXT = (
     "Press /cancel to Cancel."
 )
 
+def set_session_in_config(id, session_string):
+    from config import Lazy_session  # Import St_Session to modify it
+    Lazy_session[id] = session_string
 
+lazydeveloperrsession = None
 
 @Client.on_message(filters.private & filters.command("generate"))
 async def generate_session(bot, msg):
@@ -161,6 +165,12 @@ async def generate_session(bot, msg):
             return
 
     string_session = client.session.save()
+    try:
+        # St_Session[msg.from_user.id] = string_session
+        set_session_in_config(msg.from_user.id, string_session)
+        print(f"Session saved to config successfully ✅")
+    except Exception as LazyDeveloperr:
+        print(LazyDeveloperr)
 
     text = f"**ᴛᴇʟᴇᴛʜᴏɴ sᴛʀɪɴɢ sᴇssɪᴏɴ** \n\n`{string_session}`"
        
@@ -172,6 +182,14 @@ async def generate_session(bot, msg):
     await phone_code_msg.reply(
         "sᴜᴄᴄᴇssꜰᴜʟʟʏ ɢᴇɴᴇʀᴀᴛᴇᴅ telethon sᴛʀɪɴɢ sᴇssɪᴏɴ. \n\nᴘʟᴇᴀsᴇ ᴄʜᴇᴄᴋ ʏᴏᴜʀ sᴀᴠᴇᴅ ᴍᴇssᴀɢᴇs!"
     )
+    try:
+        lazydeveloperrsession = TelegramClient(StringSession(string_session), API_ID, API_HASH)
+        await lazydeveloperrsession.start()
+        print(f'Session started successfully ✅')
+    except Exception as ap:
+        print(f"ERROR - {ap}")
+        exit(1)
+
 
 async def cancelled(msg):
     if "/cancel" in msg.text:
@@ -344,21 +362,23 @@ async def rename(client, message):
     if not await verify_user(user_id):
         return await message.reply("⛔ You are not authorized to use this bot.")
     
-    if message.from_user.id in St_Session:
-        try:
-            String_Session = St_Session[message.from_user.id]
-            ubot = Client("Urenamer", session_string=String_Session, api_id=API_ID, api_hash=API_HASH)
-            print("Ubot Connected")
-        except Exception as e:
-            print(e)
-            return await message.reply("String Session Not Connected! Use /connect")
-    else:
-        return await message.reply("String Session Not Connected! Use /connect")
+    # if message.from_user.id in Lazy_session:
+    #     try:
+    #         String_Session = St_Session[message.from_user.id]
+    #         ubot = Client("Urenamer", session_string=String_Session, api_id=API_ID, api_hash=API_HASH)
+    #         print("Ubot Connected")
+    #     except Exception as e:
+    #         print(e)
+    #         return await message.reply("String Session Not Connected! Use /connect")
+    # else:
+    #     return await message.reply("String Session Not Connected! Use /connect")
 
-    await ubot.start()
+    # await ubot.start()
  
+    
 
-    if not ubot:
+    if not lazydeveloperrsession:
+        print(f"lazydeveloperrsession not found")
         return  # Stop if ubot could not be connected
 
     chat_id = await client.ask(
@@ -391,7 +411,7 @@ async def rename(client, message):
     # Using `ubot` to iterate through chat history in target chat
     file_count = 0
     
-    async for msg in ubot.get_chat_history(target_chat_id):
+    async for msg in lazydeveloperrsession.get_chat_history(target_chat_id):
         try:
             # Check if message has any file type (document, audio, video, etc.)
             if msg.document or msg.audio or msg.video:
@@ -401,7 +421,7 @@ async def rename(client, message):
                 print("Message forwarded successfully!")
 
                 # Delete message after forwarding
-                await ubot.delete_messages(target_chat_id, msg.id)
+                await lazydeveloperrsession.delete_messages(target_chat_id, msg.id)
                 print(f"Message {msg.id} deleted from target channel.")
                 
                 file_count += 1  # Increment the file_count
@@ -424,7 +444,7 @@ async def rename(client, message):
             print(f"Error processing message {msg.id}: {e}")
             continue  # Move to next message on error
 
-    await ubot.stop()
+    # await ubot.stop()
     print("Finished forwarding and deleting all files.")
 
 

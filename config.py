@@ -25,6 +25,8 @@ BOT_USERNAME = os.environ.get("BOT_USERNAME", "@FileRenamesRobot")
 
 PORT = os.environ.get('PORT', '8080')
 
+Lazy_session = {}
+
 String_Session  = "None"
 
 Permanent_4gb = "-100XXX"
