@@ -8,4 +8,4 @@ TgCrypto
 dnspython
 aiohttp 
 pyromod==1.5
-Telethon
+Telethon==1.*
