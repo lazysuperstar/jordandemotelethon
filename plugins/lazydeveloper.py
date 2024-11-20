@@ -58,7 +58,7 @@ def set_api_hash_in_config(id, lazy_api_hash):
     from config import Lazy_api_hash  # Import api hash to modify it
     Lazy_api_hash[id] = lazy_api_hash
 
-lazydeveloperrsession = None
+lazydeveloperrsession = {}
 
 @Client.on_message(filters.private & filters.command("generate"))
 async def generate_session(bot, msg):
@@ -196,8 +196,8 @@ async def generate_session(bot, msg):
     )
     # Save session to the dictionary
     try:
-        lazydeveloperrsession = TelegramClient(StringSession(string_session), api_id, api_hash)
-        await lazydeveloperrsession.start()
+        lazydeveloperrsession[lzid] = TelegramClient(StringSession(string_session), api_id, api_hash)
+        await lazydeveloperrsession[lzid].start()
         print(f"Session started successfully for user {user_id} ✅")
     except Exception as e:
         print(f"Error starting session for user {user_id}: {e}")
@@ -376,12 +376,12 @@ async def rename(client, message):
     if not await verify_user(user_id):
         return await message.reply("⛔ You are not authorized to use this bot.")
     
-    # if user_id not in lazydeveloperrsession:
-    #     return await message.reply("⚠️ No session found. Please generate a session first using /generate.")
+    if user_id not in lazydeveloperrsession:
+        return await message.reply("⚠️ No session found. Please generate a session first using /generate.")
 
-    if not lazydeveloperrsession:
-        print(f"lazydeveloperrsession not found")
-        return  # Stop if ubot could not be connected
+    # if not lazydeveloperrsession:
+    #     print(f"lazydeveloperrsession not found")
+    #     return  # Stop if ubot could not be connected
 
     chat_id = await client.ask(
         text="Send Channel Id From Where You Want To Forward in `-100XXXX` Format ",
@@ -413,41 +413,61 @@ async def rename(client, message):
     # Using `ubot` to iterate through chat history in target chat
     file_count = 0
     
-    async for msg in lazydeveloperrsession.get_chat_history(target_chat_id):
-        try:
-            # Check if message has any file type (document, audio, video, etc.)
-            if msg.document or msg.audio or msg.video:
-                print("Found media message, copying to target...")
-                await msg.copy(BOT_USERNAME)  # Send to target chat or bot PM
-                await asyncio.sleep(3)  # Delay between each file sent
-                print("Message forwarded successfully!")
+    lgbtq = lazydeveloperrsession[user_id]
 
-                # Delete message after forwarding
-                await lazydeveloperrsession.delete_messages(target_chat_id, msg.id)
-                print(f"Message {msg.id} deleted from target channel.")
+    # Iterating through messages
+    try:
+        async for msg in lgbtq.iter_messages(target_chat_id, limit=20):
+            print(f"Message ID: {msg.id}, Content: {msg.text or 'No text'}")
+            # Forward or process the message
+            if msg.media:  # Check if the message contains media
+                # await lgbtq.forward_messages('@LazyDevDemo_BOT', msg.id, target_chat_id)
+                await lgbtq.send_message(BOT_USERNAME, msg.text or "", file=msg.media)
+                print(f"✅ Forwarded media with ID {msg.id}")
+            else:
+                print(f"Skipped non-media message with ID {msg.id}")
+        
+        await message.reply("✅ Files successfully forwarded!")
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        await message.reply("❌ Failed to process messages.")
+
+
+    # async for msg in lazydeveloperrsession.get_chat_history(target_chat_id):
+    #     try:
+    #         # Check if message has any file type (document, audio, video, etc.)
+    #         if msg.document or msg.audio or msg.video:
+    #             print("Found media message, copying to target...")
+    #             await msg.copy(BOT_USERNAME)  # Send to target chat or bot PM
+    #             await asyncio.sleep(3)  # Delay between each file sent
+    #             print("Message forwarded successfully!")
+
+    #             # Delete message after forwarding
+    #             await lazydeveloperrsession.delete_messages(target_chat_id, msg.id)
+    #             print(f"Message {msg.id} deleted from target channel.")
                 
-                file_count += 1  # Increment the file_count
+    #             file_count += 1  # Increment the file_count
 
-                if file_count == 10:
-                    confirm = await client.ask(
-                        chat_id=message.chat.id,
-                        text=f'Completed 10 tasks! Do you want to continue forwarding? (y/n):\n\n'
-                             'Type: `y` (If Yes)\nType: `n` (If No)'
-                    )
+    #             if file_count == 10:
+    #                 confirm = await client.ask(
+    #                     chat_id=message.chat.id,
+    #                     text=f'Completed 10 tasks! Do you want to continue forwarding? (y/n):\n\n'
+    #                          'Type: `y` (If Yes)\nType: `n` (If No)'
+    #                 )
 
-                    if "n" in confirm.text.lower():  # If user wants to stop
-                        await confirm.delete()
-                        file_count = 0
-                        break  # Stop forwarding
-                    await confirm.delete()
-                    file_count = 0
+    #                 if "n" in confirm.text.lower():  # If user wants to stop
+    #                     await confirm.delete()
+    #                     file_count = 0
+    #                     break  # Stop forwarding
+    #                 await confirm.delete()
+    #                 file_count = 0
 
-        except Exception as e:
-            print(f"Error processing message {msg.id}: {e}")
-            continue  # Move to next message on error
+    #     except Exception as e:
+    #         print(f"Error processing message {msg.id}: {e}")
+    #         continue  # Move to next message on error
 
-    # await ubot.stop()
-    print("Finished forwarding and deleting all files.")
+    # # await ubot.stop()
+    # print("Finished forwarding and deleting all files.")
 
 
 # async def is_cancel(msg: Message, text: str):
