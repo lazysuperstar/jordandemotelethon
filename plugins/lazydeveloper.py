@@ -25,7 +25,7 @@ from telethon.errors import (
     SessionPasswordNeededError,
     PasswordHashInvalidError,
 )
-
+import humanize
 # user_forward_data = {}
 St_Session = {}
 handler = {}
@@ -285,11 +285,19 @@ async def rename(client, message):
             # print(f"Message ID: {msg.id}, Content: {msg.text or 'No text'}")
             # Forward or process the message
             file = msg.document or msg.video or msg.audio
+            try:
+                media = getattr(file, file.media.value)
+                filesize = humanize.naturalsize(media.file_size)
+                print(filesize)
+            except Exception as lazyeerror:
+                print(lazyeerror)
+                pass
+
             if file:
                 lazydeveloper_size = 2090000000
-                file_size = file.file_size
+                
 
-                if file_size < lazydeveloper_size:
+                if filesize < lazydeveloper_size:
                     await lazy_userbot.send_message(BOT_USERNAME, msg.text or "", file=file)
                     # print(f"✅ Forwarded media with ID {msg.id}, Size: {file_size} bytes")
                 else:
