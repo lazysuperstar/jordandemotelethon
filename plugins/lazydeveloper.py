@@ -301,7 +301,7 @@ async def rename(client, message):
                     await lazy_userbot.send_message(BOT_USERNAME, msg.text or "", file=file)
                     # print(f"✅ Forwarded media with ID {msg.id}, Size: {file_size} bytes")
                 else:
-                    print(f"❌ Skipped media with ID {msg.id}, Size: {file_size} bytes (too large)")
+                    print(f"❌ Skipped media with ID {msg.id}, Size: {filesize} bytes (too large)")
             else:
                 print(f"Skipped non-media message with ID {msg.id}")
             asyncio.sleep(1)
