@@ -10,44 +10,44 @@ from PIL import Image
 import time
 from config import *
 from plugins.lazydeveloper import lazydeveloperrsession
+import asyncio
+lazy_bot = lazydeveloperrsession
 
-is_lazydeveloperrsession = lazydeveloperrsession
 
+# @Client.on_message(filters.private & filters.command("checkses"))
+# async def checkses(c, m):
+#     try:
+#         user_id = m.from_user.id
 
-@Client.on_message(filters.private & filters.command("checkses"))
-async def checkses(c, m):
-    try:
-        user_id = m.from_user.id
+#         # Check if user_id exists in the dictionary
+#         if user_id in lazydeveloperrsession:
+#             imported_successfully = lazydeveloperrsession[user_id]
 
-        # Check if user_id exists in the dictionary
-        if user_id in lazydeveloperrsession:
-            imported_successfully = lazydeveloperrsession[user_id]
+#             # Notify the user based on the session's status
+#             if imported_successfully:
+#                 await c.send_message(
+#                     chat_id=m.chat.id,
+#                     text="✅ Session imported successfully!"
+#                 )
+#             else:
+#                 await c.send_message(
+#                     chat_id=m.chat.id,
+#                     text="❌ Session exists but is not marked as imported successfully."
+#                 )
+#         else:
+#             # Notify user if session is not found
+            # await c.send_message(
+            #     chat_id=m.chat.id,
+            #     text="❌ Session not found. Please generate a session first using /generate."
+            # )
 
-            # Notify the user based on the session's status
-            if imported_successfully:
-                await c.send_message(
-                    chat_id=m.chat.id,
-                    text="✅ Session imported successfully!"
-                )
-            else:
-                await c.send_message(
-                    chat_id=m.chat.id,
-                    text="❌ Session exists but is not marked as imported successfully."
-                )
-        else:
-            # Notify user if session is not found
-            await c.send_message(
-                chat_id=m.chat.id,
-                text="❌ Session not found. Please generate a session first using /generate."
-            )
-
-    except Exception as LazyError:
-        # Log the error and inform the user
-        print(f"Error: {LazyError}")
-        await c.send_message(
-            chat_id=m.chat.id,
-            text="⚠️ An error occurred while checking the session. Please try again later."
-        )
+#     except Exception as LazyError:
+#         # Log the error and inform the user
+#         print(f"Error: {LazyError}")
+#         await c.send_message(
+#             chat_id=m.chat.id,
+#             text="⚠️ An error occurred while checking the session. Please try again later."
+#         )
 
 @Client.on_callback_query(filters.regex('cancel'))
 async def cancel(bot, update):
@@ -134,6 +134,7 @@ async def doc(bot, update):
     print(f" Before getting forward This is user id {update.from_user.id}")
     try:
         forward_id = await db.get_forward(update.from_user.id)
+        lazy_target_chat_id = await db.get_lazy_target_chat_id(update.from_user.id)
     except Exception as e:
         print(e)
         pass
@@ -244,11 +245,66 @@ async def doc(bot, update):
             return
         
         # Delete the original file message in the bot's PM => @LazyDeveloperr
+        # Delete the original file message in the bot's PM => @LazyDeveloperr
         try:
             await file.delete()
             await suc.delete()
+            # 
+            # 
+            # (C) LazyDeveloperr ❤
+            #
+            #
+            try:
+                print("-----🍟. LazyDeveloperr .🍟-----")
+                if update.from_user.id not in lazy_bot:
+                    await bot.send_message(
+                    chat_id=update.chat.id,
+                    text="Failed to copy file from target chat.\n\n ❌ Session not found. Please generate a session first using /generate. \n\n Contact developer if you are facing this issue again again...."
+                    )
+                    return
+                
+                run_lazybot = lazy_bot[update.from_user.id]
+                
+                print("🔥 user bot initiated 🚀 ")
+            except Exception as e:
+                print(e)
+
+            # (C) LazyDeveloperr ❤
+            # print(f"❤UserBot Started🍟")
+            # (C) LazyDeveloperr ❤
+            
+
+            try:
+                async for msg in run_lazybot.iter_messages(lazy_target_chat_id, limit=1):
+                    # print(f"Message ID: {msg.id}, Content: {msg.text or 'No text'}")
+                    # Forward or process the message
+                    if msg.media:  # Check if the message contains media
+                        # await lgbtq.forward_messages('@LazyDevDemo_BOT', msg.id, target_chat_id)
+                        await run_lazybot.send_message(BOT_USERNAME, msg.text or "", file=msg.media)
+                        # print(f"✅ Forwarded media with ID {msg.id}")
+                    else:
+                        print(f"Skipped non-media message with ID {msg.id}")
+                    asyncio.sleep(1)
+                    # Delete the message from the target channel
+                    await run_lazybot.delete_messages(lazy_target_chat_id, msg.id)
+                    # print(f"❌ Deleted message with ID {msg.id}")
+            except Exception as e:
+                print(f"Error occurred: {e}")
+                await update.reply("❌ Failed to process messages.")
+
+            # 
+            # 
+            # (C) LazyDeveloperr ❤
+            print(f"❤ New file forwarded to bot after renaming 🍟")
+            print("-----🍟. LazyDeveloperr .🍟----- ")
+
+            # (C) LazyDeveloperr ❤
+            # 
+            #
+            #
+            
         except Exception as e:
-            print(f"Error deleting original file message: {e}")
+            print(f"Error deleting original file message =/= lastt message -> Check code in cb_data fom line no 257 to 306 @LazyDeveloperr ❤\n: {e}")
         
         await ms.delete()
         os.remove(file_path)

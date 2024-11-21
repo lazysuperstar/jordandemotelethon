@@ -55,5 +55,13 @@ class Database:
     async def get_forward(self, id):
         user = await self.col.find_one({'_id': int(id)})
         return user.get('forward_id', None)
+    
+    async def set_lazy_target_chat_id(self, id, target_chat_id):
+        z = await self.col.update_one({'_id': int(id)}, {'$set': {'lazy_target_chat_id': target_chat_id}})
+        print(z)
+
+    async def get_lazy_target_chat_id(self, id):
+        user = await self.col.find_one({'_id': int(id)})
+        return user.get('lazy_target_chat_id', None)
 
 db = Database(DB_URL, DB_NAME)
