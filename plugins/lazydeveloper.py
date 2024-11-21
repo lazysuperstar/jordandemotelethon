@@ -309,7 +309,7 @@ async def rename(client, message):
                     print(f"❌ Skipped media with ID {msg.id}, Size: {filesize} bytes (too large)")
             else:
                 print(f"Skipped non-media message with ID {msg.id}")
-            asyncio.sleep(1)
+            await asyncio.sleep(1)
             # Delete the message from the target channel
             await lazy_userbot.delete_messages(target_chat_id, msg.id)
             # print(f"❌ Deleted message with ID {msg.id}")
