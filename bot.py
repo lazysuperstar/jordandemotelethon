@@ -3,6 +3,7 @@ from config import API_ID, API_HASH, BOT_TOKEN, FORCE_SUB, PORT
 from aiohttp import web
 from route import web_server
 import pyromod.listen
+import os
 
 class Bot(Client):
 
@@ -12,11 +13,12 @@ class Bot(Client):
             api_id=API_ID,
             api_hash=API_HASH,
             bot_token=BOT_TOKEN,
-            workers=200,
+            workers=min(32, os.cpu_count() + 4),
             plugins={"root": "plugins"},
             sleep_threshold=15,
+            max_concurrent_transmissions=5,
         )
-
+    # the one and only - LazyDeveloperr ❤
     async def start(self):
         await super().start()
         me = await self.get_me()
