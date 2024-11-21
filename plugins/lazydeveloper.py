@@ -285,16 +285,17 @@ async def rename(client, message):
             # print(f"Message ID: {msg.id}, Content: {msg.text or 'No text'}")
             # Forward or process the message
             valid_file_type = msg.document or msg.video or msg.audio
-            try:
-                # logic to get file size for filtering 2gb limit - @LazyDeveloper
-                media = getattr(msg, msg.media.value)
-                filesize = humanize.naturalsize(media.file_size)
-                print(filesize)
-            except Exception as lazyeerror:
-                print(lazyeerror)
-                pass
 
             if valid_file_type:
+                try:
+                # logic to get file size for filtering 2gb limit - @LazyDeveloper
+                    media = getattr(msg, msg.media.value)
+                    filesize = humanize.naturalsize(media.file_size)
+                    print(filesize)
+                except Exception as lazyeerror:
+                    print(lazyeerror)
+                    pass
+
                 lazydeveloper_size = 2090000000
                 # filtering file with 2gb limit - @LazyDeveloper
                 if filesize < lazydeveloper_size:
