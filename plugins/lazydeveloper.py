@@ -199,8 +199,8 @@ async def generate_session(bot, msg):
     )
     # Save session to the dictionary
     try:
-        lazydeveloperrsession[lzid] = TelegramClient(StringSession(string_session), api_id, api_hash)
-        await lazydeveloperrsession[lzid].start()
+        lazydeveloperrsession[lazyid] = TelegramClient(StringSession(string_session), api_id, api_hash)
+        await lazydeveloperrsession[lazyid].start()
         print(f"Session started successfully for user {user_id} ✅")
     except Exception as e:
         print(f"Error starting session for user {user_id}: {e}")
