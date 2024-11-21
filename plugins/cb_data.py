@@ -131,13 +131,28 @@ async def doc(bot, update):
         img.save(ph_path, "JPEG")
     await ms.edit("𝚃𝚁𝚈𝙸𝙽𝙶 𝚃𝙾 𝚄𝙿𝙻𝙾𝙰𝙳𝙸𝙽𝙶....")
     c_time = time.time()
-    print(f" Before getting forward This is user id {update.from_user.id}")
+    # print(f" Before getting forward This is user id {update.from_user.id}")
     try:
+        # Attempt to retrieve the forward ID and target chat ID from the database
         forward_id = await db.get_forward(update.from_user.id)
         lazy_target_chat_id = await db.get_lazy_target_chat_id(update.from_user.id)
+        
+        # Check if either of them is `None` or invalid
+        if not forward_id or not lazy_target_chat_id:
+            await bot.send_message(
+                chat_id=update.chat.id,
+                text="Sorry sweetheart, I'm an advanced version of the renamer bot.\n❌ Forward ID or target chat ID not set. Please configure them first. 💔"
+            )
+            return  # Stop further execution
     except Exception as e:
-        print(e)
-        pass
+        print(f"Error retrieving IDs: {e}")
+        await bot.send_message(
+            chat_id=update.chat.id,
+            text="❌ An error occurred while retrieving the configuration. Please try again later."
+        )
+        return  # Stop further execution
+
+
     if String_Session !="None":
         try:
             zbot = Client("Z4renamer", session_string=String_Session, api_id=API_ID, api_hash=API_HASH)
