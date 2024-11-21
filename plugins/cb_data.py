@@ -9,6 +9,45 @@ import humanize
 from PIL import Image
 import time
 from config import *
+from plugins.lazydeveloper import lazydeveloperrsession
+
+is_lazydeveloperrsession = lazydeveloperrsession
+
+
+@Client.on_message(filters.private & filters.command("checkses"))
+async def checkses(c, m):
+    try:
+        user_id = m.from_user.id
+
+        # Check if user_id exists in the dictionary
+        if user_id in lazydeveloperrsession:
+            imported_successfully = lazydeveloperrsession[user_id]
+
+            # Notify the user based on the session's status
+            if imported_successfully:
+                await c.send_message(
+                    chat_id=m.chat.id,
+                    text="✅ Session imported successfully!"
+                )
+            else:
+                await c.send_message(
+                    chat_id=m.chat.id,
+                    text="❌ Session exists but is not marked as imported successfully."
+                )
+        else:
+            # Notify user if session is not found
+            await c.send_message(
+                chat_id=m.chat.id,
+                text="❌ Session not found. Please generate a session first using /generate."
+            )
+
+    except Exception as LazyError:
+        # Log the error and inform the user
+        print(f"Error: {LazyError}")
+        await c.send_message(
+            chat_id=m.chat.id,
+            text="⚠️ An error occurred while checking the session. Please try again later."
+        )
 
 @Client.on_callback_query(filters.regex('cancel'))
 async def cancel(bot, update):
@@ -44,31 +83,30 @@ async def doc(bot, update):
     manager(update.from_user.id, True)
 
     type = update.data.split("_")[1]
+    user_id = int(update.message.chat.id)
     new_name = update.message.text
     new_filename = new_name.split(":-")[1]
-    file_path = f"downloads/{new_filename}"
+    file_path = f"downloads/{user_id}{time.time()}/{new_filename}"
     file = update.message.reply_to_message
-    org_file = file
+    # org_file = file
     ms = await update.message.edit("𝚃𝚁𝚈𝙸𝙽𝙶 𝚃𝙾 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳...")
     c_time = time.time()
     try:
-        path = await bot.download_media(message=file, progress=progress_for_pyrogram,
-                                        progress_args=("𝚃𝚁𝚈𝙸𝙽𝙶 𝚃𝙾 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳....", ms, c_time))
+        path = await file.download(file_name=file_path, progress=progress_for_pyrogram, progress_args=(f"Dᴏᴡɴʟᴏᴀᴅ Sᴛᴀʀᴛᴇᴅ....\n\n{new_filename}", ms, c_time))
     except Exception as e:
-        await ms.edit(e)
-        return
-    splitpath = path.split("/downloads/")
-    dow_file_name = splitpath[1]
-    old_file_name = f"downloads/{dow_file_name}"
-    os.rename(old_file_name, file_path)
+        return await ms.edit(e)
     duration = 0
+    # splitpath = path.split("/downloads/")
+    # dow_file_name = splitpath[1]
+    # old_file_name = f"downloads/{dow_file_name}"
+    # os.rename(old_file_name, file_path)
+    # duration = 0
     try:
         metadata = extractMetadata(createParser(file_path))
         if metadata.has("duration"):
             duration = metadata.get('duration').seconds
     except:
         pass
-    user_id = int(update.message.chat.id)
     ph_path = None
     media = getattr(file, file.media.value)
     c_caption = await db.get_caption(update.message.chat.id)

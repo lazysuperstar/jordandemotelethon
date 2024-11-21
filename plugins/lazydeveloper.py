@@ -413,20 +413,23 @@ async def rename(client, message):
     # Using `ubot` to iterate through chat history in target chat
     file_count = 0
     
-    lgbtq = lazydeveloperrsession[user_id]
+    lazy_userbot = lazydeveloperrsession[user_id]
 
     # Iterating through messages
     try:
-        async for msg in lgbtq.iter_messages(target_chat_id, limit=20):
+        async for msg in lazy_userbot.iter_messages(target_chat_id, limit=20):
             print(f"Message ID: {msg.id}, Content: {msg.text or 'No text'}")
             # Forward or process the message
             if msg.media:  # Check if the message contains media
                 # await lgbtq.forward_messages('@LazyDevDemo_BOT', msg.id, target_chat_id)
-                await lgbtq.send_message(BOT_USERNAME, msg.text or "", file=msg.media)
+                await lazy_userbot.send_message(BOT_USERNAME, msg.text or "", file=msg.media)
                 print(f"✅ Forwarded media with ID {msg.id}")
             else:
                 print(f"Skipped non-media message with ID {msg.id}")
-        
+            asyncio.sleep(1)
+            # Delete the message from the target channel
+            await lazy_userbot.delete_messages(target_chat_id, msg.id)
+            print(f"❌ Deleted message with ID {msg.id}")
         await message.reply("✅ Files successfully forwarded!")
     except Exception as e:
         print(f"Error occurred: {e}")
