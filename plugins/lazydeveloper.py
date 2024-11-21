@@ -200,13 +200,13 @@ async def generate_session(bot, msg):
         "Session generated ! Trying to login 👍"
     )
     # Save session to the dictionary
-    asyncio.sleep(1)
+    await asyncio.sleep(1)
     try:
         lazydeveloperrsession[lazyid] = TelegramClient(StringSession(string_session), api_id, api_hash)
         await lazydeveloperrsession[lazyid].start()
         print(f"Session started successfully for user {user_id} ✅")
         await success.delete()
-        asyncio.sleep(1)
+        await asyncio.sleep(1)
         await bot.send_message(
         chat_id=msg.chat.id,
         text="Logged in Successfully ✅. \n\nType /rename and enjoy renaming renaming journey 👍"
@@ -293,16 +293,17 @@ async def rename(client, message):
         async for msg in lazy_userbot.iter_messages(target_chat_id, limit=20):
             # print(f"Message ID: {msg.id}, Content: {msg.text or 'No text'}")
             # Forward or process the message
-            is_file_type = msg.document or msg.video or msg.audio
-            
-            filesize = msg.document.size if msg.document else msg.video.size if msg.video else msg.audio.size if msg.audio else 0
-            print(f"👩‍🎨FileSize{filesize}")
+            got_lazy_file = msg.document or msg.video or msg.audio
+ 
+            if got_lazy_file:
+                           
+                filesize = msg.document.size if msg.document else msg.video.size if msg.video else msg.audio.size if msg.audio else 0
+                print(f"⚡ FileSize : {filesize}")
 
-            if is_file_type:
                 lazydeveloper_size = 2090000000
                 # filtering file with 2gb limit - @LazyDeveloper
                 if filesize < lazydeveloper_size:
-                    await lazy_userbot.send_message(BOT_USERNAME, msg.text or "", file=msg.id)
+                    await lazy_userbot.send_message(BOT_USERNAME, msg.text or "", file=got_lazy_file)
                     # print(f"✅ Forwarded media with ID {msg.id}, Size: {file_size} bytes")
                 else:
                     print(f"❌ Skipped media with ID {msg.id}, Size: {filesize} bytes (too large)")
