@@ -284,21 +284,21 @@ async def rename(client, message):
         async for msg in lazy_userbot.iter_messages(target_chat_id, limit=20):
             # print(f"Message ID: {msg.id}, Content: {msg.text or 'No text'}")
             # Forward or process the message
-            file = msg.document or msg.video or msg.audio
+            valid_file_type = msg.document or msg.video or msg.audio
             try:
-                media = getattr(file, file.media.value)
+                # logic to get file size for filtering 2gb limit - @LazyDeveloper
+                media = getattr(msg, msg.media.value)
                 filesize = humanize.naturalsize(media.file_size)
                 print(filesize)
             except Exception as lazyeerror:
                 print(lazyeerror)
                 pass
 
-            if file:
+            if valid_file_type:
                 lazydeveloper_size = 2090000000
-                
-
+                # filtering file with 2gb limit - @LazyDeveloper
                 if filesize < lazydeveloper_size:
-                    await lazy_userbot.send_message(BOT_USERNAME, msg.text or "", file=file)
+                    await lazy_userbot.send_message(BOT_USERNAME, msg.text or "", file=msg.id)
                     # print(f"✅ Forwarded media with ID {msg.id}, Size: {file_size} bytes")
                 else:
                     print(f"❌ Skipped media with ID {msg.id}, Size: {filesize} bytes (too large)")
