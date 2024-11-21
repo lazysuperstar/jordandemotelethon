@@ -66,6 +66,9 @@ async def generate_session(bot, msg):
     if not await verify_user(lazyid):
         return await msg.reply("⛔ You are not authorized to use this bot.")
     
+    if lazyid in lazydeveloperrsession:
+        return await msg.reply("Hello sweetheart!\nYour session is already in use. Type /rename and enjoy renaming. \n❤")
+
     await msg.reply(
         "sᴛᴀʀᴛɪɴG [ᴛᴇʟᴇᴛʜᴏɴ] sᴇssɪᴏɴ ɢᴇɴᴇʀᴀᴛɪᴏɴ..."
     )
@@ -186,21 +189,28 @@ async def generate_session(bot, msg):
     except Exception as LazyDeveloperr:
         print(LazyDeveloperr)
 
-    text = f"**ᴛᴇʟᴇᴛʜᴏɴ sᴛʀɪɴɢ sᴇssɪᴏɴ** \n\n`{string_session}`"
+    # text = f"**ᴛᴇʟᴇᴛʜᴏɴ sᴛʀɪɴɢ sᴇssɪᴏɴ** \n\n`{string_session}`"
        
-    try:
-        await client.send_message("me", text)
-    except KeyError:
-        pass
+    # try:
+    #     await client.send_message("me", text)
+    # except KeyError:
+    #     pass
     await client.disconnect()
-    await phone_code_msg.reply(
-        "sᴜᴄᴄᴇssꜰᴜʟʟʏ ɢᴇɴᴇʀᴀᴛᴇᴅ telethon sᴛʀɪɴɢ sᴇssɪᴏɴ. \n\nᴘʟᴇᴀsᴇ ᴄʜᴇᴄᴋ ʏᴏᴜʀ sᴀᴠᴇᴅ ᴍᴇssᴀɢᴇs!"
+    success = await phone_code_msg.reply(
+        "Session generated ! Trying to login 👍"
     )
     # Save session to the dictionary
+    asyncio.sleep(1)
     try:
         lazydeveloperrsession[lazyid] = TelegramClient(StringSession(string_session), api_id, api_hash)
         await lazydeveloperrsession[lazyid].start()
         print(f"Session started successfully for user {user_id} ✅")
+        await success.delete()
+        asyncio.sleep(1)
+        await bot.send_message(
+        chat_id=msg.chat.id,
+        text="Logged in Successfully ✅. \n\nType /rename and enjoy renaming renaming journey 👍"
+    )
     except Exception as e:
         print(f"Error starting session for user {user_id}: {e}")
         await msg.reply("Failed to start session. Please try again.")
@@ -306,7 +316,6 @@ async def rename(client, message):
     except Exception as e:
         print(f"Error occurred: {e}")
         await message.reply("❌ Failed to process messages.")
-
 
 
 
