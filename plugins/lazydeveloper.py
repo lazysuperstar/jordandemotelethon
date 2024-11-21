@@ -25,7 +25,6 @@ from telethon.errors import (
     SessionPasswordNeededError,
     PasswordHashInvalidError,
 )
-import humanize
 # user_forward_data = {}
 St_Session = {}
 handler = {}
@@ -284,18 +283,12 @@ async def rename(client, message):
         async for msg in lazy_userbot.iter_messages(target_chat_id, limit=20):
             # print(f"Message ID: {msg.id}, Content: {msg.text or 'No text'}")
             # Forward or process the message
-            valid_file_type = msg.document or msg.video or msg.audio
+            is_file_type = msg.document or msg.video or msg.audio
+            
+            filesize = msg.document.size if msg.document else msg.video.size if msg.video else msg.audio.size if msg.audio else 0
+            print(f"👩‍🎨FileSize{filesize}")
 
-            if valid_file_type:
-                try:
-                # logic to get file size for filtering 2gb limit - @LazyDeveloper
-                    media = getattr(msg, msg.media.value)
-                    filesize = humanize.naturalsize(media.file_size)
-                    print(filesize)
-                except Exception as lazyeerror:
-                    print(lazyeerror)
-                    pass
-
+            if is_file_type:
                 lazydeveloper_size = 2090000000
                 # filtering file with 2gb limit - @LazyDeveloper
                 if filesize < lazydeveloper_size:
@@ -313,6 +306,8 @@ async def rename(client, message):
     except Exception as e:
         print(f"Error occurred: {e}")
         await message.reply("❌ Failed to process messages.")
+
+
 
 
 async def verify_user(user_id: int):
