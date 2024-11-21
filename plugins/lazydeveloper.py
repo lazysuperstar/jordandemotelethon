@@ -233,7 +233,7 @@ async def cancelled(msg):
 async def rename(client, message):
     user_id = message.from_user.id
     # Check if the user is allowed to use the bot
-    if not await verify_user(user_id):
+    if not await verify_user(z):
         return await message.reply("⛔ You are not authorized to use this bot.")
     
     if user_id not in lazydeveloperrsession:
@@ -281,21 +281,13 @@ async def rename(client, message):
         async for msg in lazy_userbot.iter_messages(target_chat_id, limit=20):
             # print(f"Message ID: {msg.id}, Content: {msg.text or 'No text'}")
             # Forward or process the message
-            if msg.media:
+            file = msg.document or msg.video or msg.audio
+            if file:
                 lazydeveloper_size = 2090000000
-                file_size = 0
-                if msg.document:
-                    file_size = msg.document.file_size
-                elif msg.video:
-                    file_size = msg.video.file_size
-                elif msg.audio:
-                    file_size = msg.audio.file_size
+                file_size = file.file_size
 
-              # Check if the message contains media
-                # await lgbtq.forward_messages('@LazyDevDemo_BOT', msg.id, target_chat_id)
-                
                 if file_size < lazydeveloper_size:
-                    await lazy_userbot.send_message(BOT_USERNAME, msg.text or "", file=msg.media)
+                    await lazy_userbot.send_message(BOT_USERNAME, msg.text or "", file=file)
                     # print(f"✅ Forwarded media with ID {msg.id}, Size: {file_size} bytes")
                 else:
                     print(f"❌ Skipped media with ID {msg.id}, Size: {file_size} bytes (too large)")
