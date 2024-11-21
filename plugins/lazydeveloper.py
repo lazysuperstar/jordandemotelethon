@@ -62,8 +62,11 @@ lazydeveloperrsession = {}
 
 @Client.on_message(filters.private & filters.command("generate"))
 async def generate_session(bot, msg):
-    lzid = msg.from_user.id
+    lazyid = msg.from_user.id
     global lazydeveloperrsession
+    if not await verify_user(lazyid):
+        return await msg.reply("⛔ You are not authorized to use this bot.")
+    
     await msg.reply(
         "sᴛᴀʀᴛɪɴG [ᴛᴇʟᴇᴛʜᴏɴ] sᴇssɪᴏɴ ɢᴇɴᴇʀᴀᴛɪᴏɴ..."
     )
@@ -233,7 +236,7 @@ async def cancelled(msg):
 async def rename(client, message):
     user_id = message.from_user.id
     # Check if the user is allowed to use the bot
-    if not await verify_user(z):
+    if not await verify_user(user_id):
         return await message.reply("⛔ You are not authorized to use this bot.")
     
     if user_id not in lazydeveloperrsession:
