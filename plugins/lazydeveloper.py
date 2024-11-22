@@ -64,7 +64,7 @@ async def connect_session(bot, msg):
     global lazydeveloperrsession
     user_id = msg.from_user.id
     if user_id in lazydeveloperrsession:
-        return bot.send_message(chat=msg.chat.id, text=f"You are already logged in ✅.\n\nUse /rename and enjoy renaming 👍")
+        return bot.send_message(chat_id=msg.chat.id, text=f"You are already logged in ✅.\n\nUse /rename and enjoy renaming 👍")
     
     # get users session string
     session_msg = await bot.ask(
@@ -361,10 +361,17 @@ async def rename(client, message):
     lazy_userbot = lazydeveloperrsession[user_id]
 
     # Iterating through messages
+    max_limit = 100  # High limit to fetch more messages if some are skipped
+    forwarded_lazy_count = 0
+    max_forward_lazy_count = 20 
+    skiped_lazy_files = 0 
     try:
-        async for msg in lazy_userbot.iter_messages(target_chat_id, limit=20):
-            # print(f"Message ID: {msg.id}, Content: {msg.text or 'No text'}")
+        async for msg in lazy_userbot.iter_messages(target_chat_id, limit=100):
             # Forward or process the message
+            if forwarded_lazy_count >= max_forward_lazy_count:
+                break   
+
+            # fetch files
             got_lazy_file = msg.document or msg.video or msg.audio
             
             if got_lazy_file:
@@ -379,19 +386,20 @@ async def rename(client, message):
                     await asyncio.sleep(1)
                     # Delete the message from the target channel
                     await lazy_userbot.delete_messages(target_chat_id, msg.id)
-
+                    forwarded_lazy_count += 1
                 else:
+                    await client.send_message(
+                        message.from_user.id,
+                        f"❌ Skipped media with ID {msg.id}, Size: {filesize} bytes (too large)"
+                        )
+                    skiped_lazy_files += 1
                     print(f"❌ Skipped media with ID {msg.id}, Size: {filesize} bytes (too large)")
                 
             else:
                 print(f"Skipped non-media message with ID {msg.id}")
             
-            # Delete the message from the target channel
-            # await lazy_userbot.delete_messages(target_chat_id, msg.id)
-            # print(f"❌ Deleted message with ID {msg.id}")
-            # wait for 2 seconds
-            await asyncio.sleep(2)
-        await message.reply("✅ Files successfully forwarded!")
+            await asyncio.sleep(1)
+        await message.reply(f"📜Files forwarded = {forwarded_lazy_count} ! \n🗑Files Skipped  = {skiped_lazy_files}")
     except Exception as e:
         print(f"Error occurred: {e}")
         await message.reply("❌ Failed to process messages.")

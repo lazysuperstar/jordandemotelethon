@@ -14,40 +14,6 @@ import asyncio
 lazy_bot = lazydeveloperrsession
 
 
-# @Client.on_message(filters.private & filters.command("checkses"))
-# async def checkses(c, m):
-#     try:
-#         user_id = m.from_user.id
-
-#         # Check if user_id exists in the dictionary
-#         if user_id in lazydeveloperrsession:
-#             imported_successfully = lazydeveloperrsession[user_id]
-
-#             # Notify the user based on the session's status
-#             if imported_successfully:
-#                 await c.send_message(
-#                     chat_id=m.chat.id,
-#                     text="✅ Session imported successfully!"
-#                 )
-#             else:
-#                 await c.send_message(
-#                     chat_id=m.chat.id,
-#                     text="❌ Session exists but is not marked as imported successfully."
-#                 )
-#         else:
-#             # Notify user if session is not found
-            # await c.send_message(
-            #     chat_id=m.chat.id,
-            #     text="❌ Session not found. Please generate a session first using /generate."
-            # )
-
-#     except Exception as LazyError:
-#         # Log the error and inform the user
-#         print(f"Error: {LazyError}")
-#         await c.send_message(
-#             chat_id=m.chat.id,
-#             text="⚠️ An error occurred while checking the session. Please try again later."
-#         )
 
 @Client.on_callback_query(filters.regex('cancel'))
 async def cancel(bot, update):
