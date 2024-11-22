@@ -294,11 +294,10 @@ async def rename(client, message):
             # print(f"Message ID: {msg.id}, Content: {msg.text or 'No text'}")
             # Forward or process the message
             got_lazy_file = msg.document or msg.video or msg.audio
- 
+            
             if got_lazy_file:
-                           
                 filesize = msg.document.size if msg.document else msg.video.size if msg.video else msg.audio.size if msg.audio else 0
-                print(f"⚡ FileSize : {filesize}")
+                # print(f"⚡ FileSize : {filesize}")
 
                 lazydeveloper_size = 2090000000
                 # filtering file with 2gb limit - @LazyDeveloper
@@ -307,12 +306,15 @@ async def rename(client, message):
                     # print(f"✅ Forwarded media with ID {msg.id}, Size: {file_size} bytes")
                 else:
                     print(f"❌ Skipped media with ID {msg.id}, Size: {filesize} bytes (too large)")
+                
             else:
                 print(f"Skipped non-media message with ID {msg.id}")
-            await asyncio.sleep(1)
+            
             # Delete the message from the target channel
             await lazy_userbot.delete_messages(target_chat_id, msg.id)
             # print(f"❌ Deleted message with ID {msg.id}")
+            # wait for 2 seconds
+            await asyncio.sleep(2)
         await message.reply("✅ Files successfully forwarded!")
     except Exception as e:
         print(f"Error occurred: {e}")

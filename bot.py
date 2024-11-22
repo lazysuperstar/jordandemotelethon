@@ -13,7 +13,7 @@ class Bot(Client):
             api_id=API_ID,
             api_hash=API_HASH,
             bot_token=BOT_TOKEN,
-            workers=min(32, os.cpu_count() + 4),
+            workers=200,
             plugins={"root": "plugins"},
             sleep_threshold=15,
             max_concurrent_transmissions=5,

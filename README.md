@@ -35,9 +35,7 @@ broadcast - admin only
 ```
 
 ## 👌Thanks to
-<a href="https://telegram.me/LazyDeveloperr">
-   <p>🍟 LazyDeveloperr ❤</p>
-</a> - for re-developing this bot making it superior 🚀 
+- [🍟 LazyDeveloperr ❤](https://telegram.me/LazyDeveloperr) - for re-developing this bot making it superior 🚀 
 
 
 ## 👌 Owner 
