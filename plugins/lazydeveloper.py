@@ -390,10 +390,10 @@ async def rename(client, message):
                 else:
                     await client.send_message(
                         message.from_user.id,
-                        f"❌ Skipped media with ID {msg.id}, Size: {filesize} bytes (too large)"
+                        f"❌ Skipped media with ID {msg.id}, Size greater than 2gb"
                         )
                     skiped_lazy_files += 1
-                    print(f"❌ Skipped media with ID {msg.id}, Size: {filesize} bytes (too large)")
+                    print(f"❌ Skipped media with ID {msg.id}, Size greater than 2gb")
                 
             else:
                 print(f"Skipped non-media message with ID {msg.id}")

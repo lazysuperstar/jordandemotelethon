@@ -251,14 +251,16 @@ async def doc(bot, update):
                 print(e)
 
             # (C) LazyDeveloperr ❤
-            # print(f"❤UserBot Started🍟")
+            forwarded_lazy_count = 0
+            max_forward_lazy_count = 1
+            skiped_lazy_files = 0
             # (C) LazyDeveloperr ❤
-            
-
             try:
-                async for msg in run_lazybot.iter_messages(lazy_target_chat_id, limit=1):
+                async for msg in run_lazybot.iter_messages(lazy_target_chat_id, limit=10):
                     # print(f"Message ID: {msg.id}, Content: {msg.text or 'No text'}")
                     # Forward or process the message
+                    if forwarded_lazy_count >= max_forward_lazy_count:
+                        break
                     got_lazy_file = msg.document or msg.video or msg.audio
 
                     if got_lazy_file:  # Check if the message contains media
@@ -268,16 +270,21 @@ async def doc(bot, update):
                             # await lgbtq.forward_messages('@LazyDevDemo_BOT', msg.id, target_chat_id)
                             await run_lazybot.send_message(BOT_USERNAME, msg.text or "", file=got_lazy_file)
                             # print(f"✅ Forwarded media with ID {msg.id}")
+                            await asyncio.sleep(1)
+                            await run_lazybot.delete_messages(lazy_target_chat_id, msg.id)
+                            forwarded_lazy_count += 1
                         else:
-                            print(f"❌ Skipped media with ID {msg.id}, Size: {filesize} bytes (too large)")
-                        
+                            await bot.send_message(
+                                update.from_user.id,
+                                f"❌ Skipped media with ID {msg.id}, Size greater than 2gb"
+                                )
+                            skiped_lazy_files += 1
+                            print(f"❌ Skipped media with ID {msg.id}, Size greater than 2gb")
+                            await asyncio.sleep(1)
+
                     else:
                         print(f"Skipped non-media message with ID {msg.id}")
-                    
-                    # Delete the message from the target channel
-                    await run_lazybot.delete_messages(lazy_target_chat_id, msg.id)
-                    # print(f"❌ Deleted message with ID {msg.id}")
-                          
+   
             except Exception as e:
                 print(f"Error occurred: {e}")
                 await update.reply("❌ Failed to process messages.")
