@@ -59,6 +59,78 @@ def set_api_hash_in_config(id, lazy_api_hash):
 
 lazydeveloperrsession = {}
 
+@Client.on_message(filters.private & filters.command("connect"))
+async def connect_session(bot, msg):
+    global lazydeveloperrsession
+    user_id = msg.from_user.id
+    if user_id in lazydeveloperrsession:
+        return bot.send_message(chat=msg.chat.id, text=f"You are already logged in ✅.\n\nUse /rename and enjoy renaming 👍")
+    
+    # get users session string
+    session_msg = await bot.ask(
+        user_id, "ᴘʟᴇᴀsᴇ sᴇɴᴅ ʏᴏᴜʀ `TELETHON SESSION STRING`", filters=filters.text
+    )
+    if await cancelled(session_msg):
+        return
+    lazydeveloper_string_session = session_msg.text
+    
+    #get user api id 
+    api_id_msg = await bot.ask(
+        user_id, "ᴘʟᴇᴀsᴇ sᴇɴᴅ ʏᴏᴜʀ `API_ID`", filters=filters.text
+        )
+    if await cancelled(api_id_msg):
+        return
+    try:
+        api_id = int(api_id_msg.text)
+    except ValueError:
+        await api_id_msg.reply(
+            "ɴᴏᴛ ᴀ ᴠᴀʟɪᴅ API_ID (ᴡʜɪᴄʜ ᴍᴜsᴛ ʙᴇ ᴀɴ ɪɴᴛᴇɢᴇʀ). ᴘʟᴇᴀsᴇ sᴛᴀʀᴛ ɢᴇɴᴇʀᴀᴛɪɴɢ sᴇssɪᴏɴ ᴀɢᴀɪɴ.",
+            quote=True,
+            reply_markup=InlineKeyboardMarkup(Data.generate_button),
+        )
+        return
+    
+    # get user api hash
+    api_hash_msg = await bot.ask(
+        user_id, "ᴘʟᴇᴀsᴇ sᴇɴᴅ ʏᴏᴜʀ `API_HASH`", filters=filters.text
+    )
+    if await cancelled(api_id_msg):
+        return
+    api_hash = api_hash_msg.text
+
+    # 
+    success = await bot.send_message(
+        chat_id=msg.chat.id,
+        text="Trying to login...\n\nPlease wait 🍟"
+    )
+    await asyncio.sleep(1)
+    try:
+        lazydeveloperrsession[user_id] = TelegramClient(StringSession(lazydeveloper_string_session), api_id, api_hash)
+        await lazydeveloperrsession[user_id].start()
+        # for any query msg me on telegram - @LazyDeveloperr 👍
+        print(f"Session started successfully for user {user_id} ✅")
+        
+        await success.delete()
+        
+        await asyncio.sleep(1)
+        
+        await bot.send_message(
+        chat_id=msg.chat.id,
+        text="Logged in Successfully ✅. \n\nType /rename and enjoy renaming renaming journey 👍"
+             )
+        try:
+            set_session_in_config(msg.from_user.id, lazydeveloper_string_session)
+            set_api_id_in_config(msg.from_user.id, api_id)
+            set_api_hash_in_config(msg.from_user.id, api_hash)
+        except Exception as lazydeveloper:
+            print(f"Something went wrong : {lazydeveloper}")
+            # for any query msg me on telegram - @LazyDeveloperr 👍
+    except Exception as e:
+        print(f"Error starting session for user {user_id}: {e}")
+        await msg.reply("Failed to start session. Please re-check your provided credentials. 👍")
+        return
+
+
 @Client.on_message(filters.private & filters.command("generate"))
 async def generate_session(bot, msg):
     lazyid = msg.from_user.id
@@ -189,12 +261,12 @@ async def generate_session(bot, msg):
     except Exception as LazyDeveloperr:
         print(LazyDeveloperr)
 
-    # text = f"**ᴛᴇʟᴇᴛʜᴏɴ sᴛʀɪɴɢ sᴇssɪᴏɴ** \n\n`{string_session}`"
+    text = f"**ᴛᴇʟᴇᴛʜᴏɴ sᴛʀɪɴɢ sᴇssɪᴏɴ** \n\n`{string_session}`"
        
-    # try:
-    #     await client.send_message("me", text)
-    # except KeyError:
-    #     pass
+    try:
+        await client.send_message("me", text)
+    except KeyError:
+        pass
     await client.disconnect()
     success = await phone_code_msg.reply(
         "Session generated ! Trying to login 👍"
@@ -304,6 +376,10 @@ async def rename(client, message):
                 if filesize < lazydeveloper_size:
                     await lazy_userbot.send_message(BOT_USERNAME, msg.text or "", file=got_lazy_file)
                     # print(f"✅ Forwarded media with ID {msg.id}, Size: {file_size} bytes")
+                    await asyncio.sleep(1)
+                    # Delete the message from the target channel
+                    await lazy_userbot.delete_messages(target_chat_id, msg.id)
+
                 else:
                     print(f"❌ Skipped media with ID {msg.id}, Size: {filesize} bytes (too large)")
                 
@@ -311,7 +387,7 @@ async def rename(client, message):
                 print(f"Skipped non-media message with ID {msg.id}")
             
             # Delete the message from the target channel
-            await lazy_userbot.delete_messages(target_chat_id, msg.id)
+            # await lazy_userbot.delete_messages(target_chat_id, msg.id)
             # print(f"❌ Deleted message with ID {msg.id}")
             # wait for 2 seconds
             await asyncio.sleep(2)
